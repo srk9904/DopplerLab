@@ -1,0 +1,11 @@
+torch
+librosa
+numpy
+scipy
+matplotlib
+pandas
+tqdm
+pyyaml
+python-dotenv
+fastapi
+uvicorn
