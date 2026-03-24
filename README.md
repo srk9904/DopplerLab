@@ -1,9 +1,9 @@
-# DopplerLab — Modular ML System
+# DopplerLab: Modular ML System
 
 A modular, reproducible machine learning system for multi-task Doppler audio analysis. Predicts vehicle trajectory path, source speed, and source distance from simulated Doppler-shifted audio clips using CNN and Transformer-based architectures.
 
 > **Looking for the dataset simulator?**  
-> Audio clips are generated using **DopplerNet** — a Flask-based Doppler audio simulator with physically accurate wave modelling, multi-path trajectory support, and a full web UI.  
+> Audio clips are generated using **DopplerNet**, a Flask-based Doppler audio simulator with physically accurate wave modelling, multi-path trajectory support, and a full web UI.  
 > → [github.com/rohitharumugams/DopplerNet](https://github.com/rohitharumugams/DopplerNet)
 
 ---
@@ -38,8 +38,8 @@ Both versions use the same label format: `{vehicle}_{path}_{speed}mps_{dist}m_{i
 
 | Model | Input | Architecture |
 |---|---|---|
-| `DopplerNet1D` (`1D-CQT`) | `(B, 7, 432)` — 7-channel CQT ridge trajectory | Conv1d encoder (7→64→128→256→128) + additive temporal attention |
-| `DopplerNet2D` (`2D-CQT`) | `(B, 1, 84, 432)` — log-CQT spectrogram | Conv2d backbone + learned freq compression + additive temporal attention |
+| `DopplerNet1D` (`1D-CQT`) | `(B, 7, 432)` - 7-channel CQT ridge trajectory | Conv1d encoder (7→64→128→256→128) + additive temporal attention |
+| `DopplerNet2D` (`2D-CQT`) | `(B, 1, 84, 432)` - log-CQT spectrogram | Conv2d backbone + learned freq compression + additive temporal attention |
 
 The 1D model operates on seven hand-crafted Doppler features (frequency derivatives, dominant bin, RMS energy, relative time). The 2D model uses the full log-CQT spectrogram with per-bin z-score normalisation.
 
@@ -47,10 +47,10 @@ The 1D model operates on seven hand-crafted Doppler features (frequency derivati
 
 | Model | Input | Architecture |
 |---|---|---|
-| `DopplerTransformer1D` (`1D-Attn`) | `(B, 7, 432)` — 7-channel CQT ridge trajectory | Linear projection + sinusoidal PE + Transformer encoder (3 layers, nhead=4) |
-| `DopplerCNNTransformer2D` (`2D-Attn`) | `(B, 1, 84, 432)` — log-CQT spectrogram | Conv2d backbone + learned freq compression + Transformer encoder (2 layers, nhead=4) |
+| `DopplerTransformer1D` (`1D-Attn`) | `(B, 7, 432)` - 7-channel CQT ridge trajectory | Linear projection + sinusoidal PE + Transformer encoder (3 layers, nhead=4) |
+| `DopplerCNNTransformer2D` (`2D-Attn`) | `(B, 1, 84, 432)` - log-CQT spectrogram | Conv2d backbone + learned freq compression + Transformer encoder (2 layers, nhead=4) |
 
-The Attention benchmark is a direct successor to the CNN benchmark — feature extraction, loss, training infrastructure, and evaluation protocol are intentionally identical for fair comparison. The key upgrade is replacing additive attention with full Transformer encoders and adding explicit sinusoidal positional encoding.
+The Attention benchmark is a direct successor to the CNN benchmark. Feature extraction, loss, training infrastructure, and evaluation protocol are intentionally identical for fair comparison. The key upgrade is replacing additive attention with full Transformer encoders and adding explicit sinusoidal positional encoding.
 
 All four models share the same multi-task head structure:
 
@@ -121,10 +121,10 @@ All training and evaluation runs through `run.py` with a config file:
 ### Training
 
 ```bash
-# CNN benchmark — v2 dataset, 2D model
+# CNN benchmark, v2 dataset, 2D model
 python run.py --mode train --config configs/v2_cnn.yaml --model-name cqt_2d --dataset-v v2
 
-# Attention benchmark — v2 dataset, 1D model
+# Attention benchmark, v2 dataset, 1D model
 python run.py --mode train --config configs/v2_attention.yaml --model-name attn_1d --dataset-v v2
 ```
 
@@ -137,8 +137,8 @@ python run.py --mode evaluate --config configs/v2_attention.yaml --model-name at
 
 Evaluation outputs for each model:
 
-- `results/{benchmark}/{model}/` — per-sample results CSV + summary CSV
-- `results/{benchmark}/{model}/figures/` — confusion matrices, speed/distance scatter plots, MAE by distance range, error histograms, per-path MAE, R² scores (Attention only)
+- `results/{benchmark}/{model}/` - per-sample results CSV + summary CSV
+- `results/{benchmark}/{model}/figures/` - confusion matrices, speed/distance scatter plots, MAE by distance range, error histograms, per-path MAE, and R² scores (Attention only)
 
 ---
 
@@ -159,13 +159,13 @@ All models share the same training setup:
 
 $$\mathcal{L} = \mathcal{L}_{CE}(\hat{p}, p) + 2.5 \cdot \mathcal{L}_{Huber}\!\left(\hat{s},\ \frac{s}{s_{\max}}\right) + 1.5 \cdot \mathcal{L}_{Huber}\!\left(\hat{d},\ \frac{\log(1+d)}{\log(1+d_{\max})}\right)$$
 
-Distance is regressed in log-space to compress the long tail — especially important for v2's 5–1000 m range.
+Distance is regressed in log-space to compress the long tail, especially important for v2's 5–1000 m range.
 
 **Best checkpoint selection metric:**
 
 $$\mathcal{M} = \frac{\text{Speed MAE}}{s_{\max}} + \frac{\text{Dist MAE}}{d_{\max}} + \left(1 - \frac{\text{Path Acc}}{100}\right)$$
 
-Checkpoints overwrite a single file per model — no storage bloat.
+Checkpoints overwrite a single file per model; no storage bloat.
 
 ---
 
@@ -175,7 +175,7 @@ Checkpoints overwrite a single file per model — no storage bloat.
 |---|---|---|
 | Path accuracy (%) | 3-class classification accuracy on test set | Both |
 | Speed MAE (m/s) | Mean absolute error of speed regression | Both |
-| Speed median error | Median absolute error — robust to outliers | Both |
+| Speed median error | Median absolute error, robust to outliers | Both |
 | Speed bias | Mean signed error; positive = overestimate | Both |
 | Dist MAE (m) | Mean absolute error of distance regression | Both |
 | Dist median error | Median absolute error of distance regression | Both |
@@ -212,13 +212,13 @@ The datasets used by this project are generated with **DopplerNet**, a Flask-bas
 
 → **Simulator repo:** [github.com/rohitharumugams/DopplerNet](https://github.com/rohitharumugams/DopplerNet)
 
-Clip filenames encode all ground-truth labels: `{vehicle}_{path}_{speed}mps_{dist}m_{id}.wav`, which DopplerLab parses directly during dataset loading — no separate annotation files needed.
+Clip filenames encode all ground-truth labels: `{vehicle}_{path}_{speed}mps_{dist}m_{id}.wav`, which DopplerLab parses directly during dataset loading; no separate annotation files needed.
 
 ---
 
 ## Authors
 
-Seetharam Killivalavan & Rohith Arumugam Suresh 
+Rohith Arumugam Suresh & Seetharam Killivalavan  
 Computer Science and Engineering, Sri Sivasubramaniya Nadar College of Engineering  
 Research Interns, Carnegie Mellon University
 
